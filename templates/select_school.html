@@ -4,9 +4,33 @@
     <meta charset="UTF-8">
     <title>בחר מוסד חינוך</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+      /* סגנון לכפתור החזור */
+      .back-button {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background-color: #6c757d; /* אפור bootstrap secondary */
+        color: white;
+        border: none;
+        padding: 8px 14px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1em;
+        text-decoration: none;
+      }
+      .back-button:hover {
+        background-color: #5a6268;
+      }
+      /* חשוב ש-container יקבל position: relative בשביל כפתור מיקום אבסולוטי בתוכו */
+      .container {
+        position: relative;
+      }
+    </style>
 </head>
 <body dir="rtl" class="bg-light">
 <div class="container mt-5">
+    <button class="back-button" onclick="window.history.back()">חזור</button>
     <h2 class="mb-4 text-center">בחר מוסד חינוך</h2>
     <form method="post" action="{{ url_for('input_start') }}" class="border p-4 bg-white rounded shadow-sm">
         <input type="hidden" name="filename" value="{{ filename }}">
