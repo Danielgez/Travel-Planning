@@ -26,7 +26,6 @@
         box-shadow: 0 2px 6px rgba(0,0,0,0.2);
         margin-top: 20px;
       }
-      /* סגנון לכפתור החזור */
       .back-button {
         position: absolute;
         top: 20px;
@@ -49,8 +48,13 @@
     <button class="back-button" onclick="window.history.back()">חזור</button>
 
     <h2 class="mb-3">מסלול הגעה</h2>
+
+    <h5 class="text-muted">נקודת מוצא:</h5>
+    <p class="fw-bold">{{ route_addresses[0] }}</p>
+
+    <h5 class="text-muted mt-4">תחנות במסלול:</h5>
     <ol class="list-group list-group-numbered mb-4">
-      {% for address in route_addresses %}
+      {% for address in route_addresses[1:] %}
         <li class="list-group-item">{{ address }}</li>
       {% endfor %}
     </ol>
