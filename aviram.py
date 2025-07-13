@@ -31,6 +31,7 @@ def geocode_address(address):
         print(f"Error: {response.status_code} - {response.text}")
     return None, None
 
+
 def haversine_distance(coord1, coord2):
     # מחשב מרחק בין שתי נקודות גאוגרפיות בקילומטרים
     lat1, lon1 = coord1
@@ -70,6 +71,7 @@ def solve_tsp_nearest_neighbor(coords):
 
     return order
 
+
 @app.route('/show_route', methods=['POST'])
 def show_route():
     selected_school = request.form.get('selected_school')
@@ -91,14 +93,11 @@ def show_route():
         if not address_col or not school_col:
             raise ValueError("לא נמצאה עמודת כתובת או בית ספר בגליון.")
 
-        # הוספת עיר ברירת מחדל לכתובות חסרות עיר מתוך כתובת בית הספר שנבחר
         df = add_default_city_to_addresses(df, address_col, school_col, selected_school)
 
-        # קבלת רשימת כתובות וקואורדינטות
-        route_addresses, route_coords, distance_matrix = build_route_tsp(
-        df, address_col, school_col, selected_school, start_address
+        route_addresses, route_coords = build_route_tsp(
+            df, address_col, school_col, selected_school, start_address
         )
-    
 
         return render_template(
             'route.html',
@@ -109,24 +108,19 @@ def show_route():
         return f"שגיאה בעת עיבוד הנתונים: {e}"
 
 
-
 def add_default_city_to_addresses(df, address_col, school_col, selected_school):
     """
     מוסיף עיר ברירת מחדל לכתובות חסרות עיר מתוך כתובת בית הספר שנבחר.
     """
-    # מקבל את הכתובת המלאה של בית הספר שנבחר
     school_row = df[df[school_col] == selected_school].iloc[0]
     school_address = str(school_row[address_col])
-    # מפצל לפי פסיקים ומוציא את העיר (נניח שהעיר היא הרכיב האחרון בכתובת)
     default_city = school_address.split(',')[-1].strip()
 
     def ensure_city_in_address(address):
         if pd.isna(address):
             return address
-        # אם אין פסיק, נניח שאין עיר ונוסיף
         if ',' not in address:
             return f"{address}, {default_city}"
-        # אם החלק האחרון ריק או מספר בלבד, נוסיף עיר
         last_part = address.split(',')[-1].strip()
         if last_part == '' or last_part.isdigit():
             return f"{address}, {default_city}"
@@ -134,6 +128,7 @@ def add_default_city_to_addresses(df, address_col, school_col, selected_school):
 
     df[address_col] = df[address_col].apply(ensure_city_in_address)
     return df
+
 
 
 def build_route_tsp(df, address_col, school_col, selected_school, start_address):
