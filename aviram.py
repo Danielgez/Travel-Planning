@@ -122,6 +122,8 @@ def input_destination():
                            selected_school=selected_school,
                            start_address=start_address)
 
+
+
 def add_default_city_to_addresses(df, address_col, school_col, selected_school):
     """
     מוסיף עיר ברירת מחדל לכתובות חסרות עיר מתוך כתובת בית הספר שנבחר.
@@ -204,7 +206,6 @@ def select_school():
     filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     df = pd.read_excel(filepath, sheet_name=selected_sheet)
 
-    # מציאת עמודות שמכילות את מוסדות הלימוד
     school_col = None
     for col in df.columns:
         col_lower = str(col).lower()
@@ -216,9 +217,10 @@ def select_school():
 
     schools = df[school_col].dropna().unique().tolist()
 
-    # מחזיר תבנית להמשך בחירת בית ספר
-    return render_template('select_school.html', filename=filename, sheet_name=selected_sheet, schools=schools)
-
+    return render_template('select_school.html',
+                           filename=filename,
+                           sheet_name=selected_sheet,
+                           schools=schools)
 
 
 @app.route('/input_start', methods=['POST'])
@@ -231,8 +233,6 @@ def input_start():
                            filename=filename,
                            sheet_name=selected_sheet,
                            selected_school=selected_school)
-
-
 
 
 
