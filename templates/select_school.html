@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <title>בחר מוסד חינוך</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body dir="rtl" class="bg-light">
+<div class="container mt-5">
+    <h2 class="mb-4 text-center">בחר מוסד חינוך</h2>
+    <form method="post" action="{{ url_for('input_start') }}" class="border p-4 bg-white rounded shadow-sm">
+        <input type="hidden" name="filename" value="{{ filename }}">
+        <input type="hidden" name="sheet_name" value="{{ sheet_name }}">
+        <div class="mb-3">
+            <select name="school_name" class="form-select" required>
+                {% for school in schools %}
+                    <option value="{{ school }}">{{ school }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary w-100">בחר מוסד</button>
+    </form>
+</div>
+</body>
+</html>
