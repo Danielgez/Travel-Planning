@@ -1,3 +1,22 @@
+<style>
+  .back-button {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    padding: 8px 12px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    z-index: 1000;
+  }
+  .back-button:hover {
+    background-color: #0056b3;
+  }
+</style>
+
 <form action="/select_school" method="POST" enctype="multipart/form-data">
     <!-- שאר השדות שלך: בחירת קובץ, בית ספר, גיליון וכו' -->
 
@@ -6,3 +25,5 @@
 
     <button type="submit">חשב מסלול</button>
 </form>
+
+<button class="back-button" onclick="window.history.back()">חזור</button>
