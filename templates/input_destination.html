@@ -9,23 +9,39 @@
         direction: rtl;
         margin: 20px;
         font-family: Arial, sans-serif;
+        background-color: #f8f9fa;
+      }
+      .container {
+        max-width: 480px;
+        margin: 60px auto;
+        background: white;
+        padding: 30px 25px;
+        border-radius: 8px;
+        box-shadow: 0 0 15px rgba(0,0,0,0.1);
+      }
+      h2 {
+        text-align: center;
+        margin-bottom: 30px;
+        font-weight: 600;
       }
     </style>
 </head>
 <body>
-  <h2>הזן כתובת התחלה</h2>
+  <div class="container">
+    <h2>הזן כתובת התחלה</h2>
 
-  <form action="{{ url_for('input_destination') }}" method="post">
-    <input type="hidden" name="filename" value="{{ filename }}" />
-    <input type="hidden" name="sheet_name" value="{{ sheet_name }}" />
-    <input type="hidden" name="selected_school" value="{{ selected_school }}" />
+    <form action="{{ url_for('input_destination') }}" method="post">
+      <input type="hidden" name="filename" value="{{ filename }}" />
+      <input type="hidden" name="sheet_name" value="{{ sheet_name }}" />
+      <input type="hidden" name="selected_school" value="{{ selected_school }}" />
 
-    <div class="mb-3">
-      <label for="start_address" class="form-label">כתובת התחלה</label>
-      <input type="text" class="form-control" id="start_address" name="start_address" required />
-    </div>
+      <div class="mb-3">
+        <label for="start_address" class="form-label">כתובת התחלה</label>
+        <input type="text" class="form-control" id="start_address" name="start_address" required />
+      </div>
 
-    <button type="submit" class="btn btn-primary">המשך</button>
-  </form>
+      <button type="submit" class="btn btn-primary w-100">המשך</button>
+    </form>
+  </div>
 </body>
 </html>
