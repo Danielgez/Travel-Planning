@@ -14,14 +14,14 @@
     </button>
 
     <h2 class="mb-4 text-center">הזן כתובת התחלה</h2>
-    <form method="post" action="{{ url_for('show_route') }}" class="border p-4 bg-white rounded shadow-sm">
+    <form method="post" action="{{ url_for('input_destination') }}" class="border p-4 bg-white rounded shadow-sm">
         <input type="hidden" name="filename" value="{{ filename }}">
         <input type="hidden" name="sheet_name" value="{{ sheet_name }}">
         <input type="hidden" name="selected_school" value="{{ selected_school }}">
         <div class="mb-3">
             <input type="text" name="start_address" class="form-control" placeholder="הזן כתובת התחלה" required>
         </div>
-        <button type="submit" class="btn btn-primary w-100">הצג מסלול</button>
+        <button type="submit" class="btn btn-primary w-100">המשך להזנת כתובת יעד</button>
     </form>
 </div>
 </body>
