@@ -149,8 +149,8 @@ def add_default_city_to_addresses(df, address_col, school_col, selected_school):
 
 def build_route_tsp(df, address_col, school_col, selected_school, start_address, destination_address=None):
     school_rows = df[df[school_col] == selected_school]
-
-    # כל הכתובות, לא כולל התחלה ויעד
+    
+    # כל הכתובות במסלול, למעט המוצא והיעד
     all_addresses = [addr for addr in school_rows[address_col].dropna().tolist()
                      if addr != start_address and addr != destination_address]
 
@@ -158,28 +158,23 @@ def build_route_tsp(df, address_col, school_col, selected_school, start_address,
     if start_latlon == (None, None):
         raise ValueError(f"לא ניתן למצוא את כתובת ההתחלה: {start_address}")
 
-    route_coords = [start_latlon]
+    coords = [start_latlon]
+    valid_addresses = [start_address]  # נתחיל עם הכתובת הראשונה
 
-    # ממיר כל כתובת לתאום
-    intermediate_coords = []
     for addr in all_addresses:
         lat, lon = geocode_address(addr)
         if lat is None or lon is None:
             raise ValueError(f"לא ניתן למצוא את הכתובת: {addr}")
-        intermediate_coords.append((lat, lon))
+        coords.append((lat, lon))
+        valid_addresses.append(addr)
 
-    # רץ TSP רק על תחנות הביניים
-    order = solve_tsp_nearest_neighbor(intermediate_coords)
+    # פתור את TSP רק על התחנות בדרך
+    order = solve_tsp_nearest_neighbor(coords)
 
-    # סדר חדש לפי TSP של התחנות
-    ordered_addresses = [all_addresses[i] for i in order]
-    ordered_coords = [intermediate_coords[i] for i in order]
+    sorted_addresses = [valid_addresses[i] for i in order]
+    sorted_coords = [coords[i] for i in order]
 
-    # מוסיף את נקודת ההתחלה בתחילת המסלול
-    sorted_addresses = [start_address] + ordered_addresses
-    sorted_coords = [start_latlon] + ordered_coords
-
-    # מוסיף את נקודת היעד בסוף (אם יש)
+    # אם יש יעד סופי - הוסף אותו לאחר המיון
     if destination_address:
         dest_latlon = geocode_address(destination_address)
         if dest_latlon == (None, None):
