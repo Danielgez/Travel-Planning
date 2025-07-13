@@ -78,6 +78,7 @@ def show_route():
     selected_sheet = request.form.get('sheet_name')
     filename = request.form.get('filename')
     start_address = request.form.get('start_address')
+    destination_address = request.form.get('destination_address')
 
     filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     try:
@@ -96,7 +97,7 @@ def show_route():
         df = add_default_city_to_addresses(df, address_col, school_col, selected_school)
 
         route_addresses, route_coords = build_route_tsp(
-            df, address_col, school_col, selected_school, start_address
+            df, address_col, school_col, selected_school, start_address, destination_address
         )
 
         return render_template(
@@ -107,6 +108,19 @@ def show_route():
     except Exception as e:
         return f"שגיאה בעת עיבוד הנתונים: {e}"
 
+
+@app.route('/input_destination', methods=['POST'])
+def input_destination():
+    filename = request.form.get('filename')
+    sheet_name = request.form.get('sheet_name')
+    selected_school = request.form.get('selected_school')
+    start_address = request.form.get('start_address')
+
+    return render_template('input_destination.html',
+                           filename=filename,
+                           sheet_name=sheet_name,
+                           selected_school=selected_school,
+                           start_address=start_address)
 
 def add_default_city_to_addresses(df, address_col, school_col, selected_school):
     """
@@ -131,30 +145,33 @@ def add_default_city_to_addresses(df, address_col, school_col, selected_school):
 
 
 
-def build_route_tsp(df, address_col, school_col, selected_school, start_address):
-    # בוחרים את השורות של בית הספר שנבחר
+def build_route_tsp(df, address_col, school_col, selected_school, start_address, destination_address=None):
     school_rows = df[df[school_col] == selected_school]
-
-    # יוצרים רשימת כתובות בלי לכלול את כתובת ההתחלה (כדי למנוע כפילויות)
     addresses = [addr for addr in school_rows[address_col].dropna().tolist() if addr != start_address]
 
-    # ממירים את כתובת ההתחלה לקואורדינטות
     start_latlon = geocode_address(start_address)
     if start_latlon == (None, None):
         raise ValueError(f"לא ניתן למצוא את כתובת ההתחלה: {start_address}")
 
-    # ממירים את שאר הכתובות לקואורדינטות
     route_coords = [start_latlon]
+
     for addr in addresses:
         lat, lon = geocode_address(addr)
         if lat is None or lon is None:
             raise ValueError(f"לא ניתן למצוא את הכתובת: {addr}")
         route_coords.append((lat, lon))
 
-    # פותרים את ה-TSP (סדר לפי נקודת התחלה)
+    # אם יש כתובת יעד, להוסיף אותה לסוף המסלול
+    if destination_address:
+        dest_latlon = geocode_address(destination_address)
+        if dest_latlon == (None, None):
+            raise ValueError(f"לא ניתן למצוא את כתובת היעד: {destination_address}")
+        route_coords.append(dest_latlon)
+        addresses.append(destination_address)
+
     order = solve_tsp_nearest_neighbor(route_coords)
 
-    # מסדרים את הכתובות והקואורדינטות לפי הסדר שהאלגוריתם חזר
+    # מכיוון שהנקודה הראשונה היא נקודת ההתחלה
     sorted_addresses = [start_address] + [addresses[i - 1] for i in order if i != 0]
     sorted_coords = [route_coords[i] for i in order]
 
