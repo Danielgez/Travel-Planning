@@ -68,6 +68,23 @@
         font-size: 16px;
         border: 2px solid white;
       }
+      .destination-marker div {
+        background-color: red !important;
+        color: white;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        line-height: 24px;
+        text-align: center;
+        font-weight: bold;
+        font-size: 16px;
+        border: 2px solid white;
+      }
+      .list-group-item.destination {
+        background-color: #f8d7da;
+        color: #721c24;
+        font-weight: 700;
+      }
     </style>
 </head>
 <body>
@@ -80,9 +97,14 @@
 
     <h5 class="text-muted mt-4">תחנות במסלול:</h5>
     <ol class="list-group list-group-numbered mb-4">
-      {% for address in route_addresses[1:] %}
+      {% for address in route_addresses[1:-1] %}
         <li class="list-group-item">{{ address }}</li>
       {% endfor %}
+      {% if route_addresses|length > 1 %}
+        <li class="list-group-item destination">
+          יעד סופי: {{ route_addresses[-1] }}
+        </li>
+      {% endif %}
     </ol>
 
     <div id="map"></div>
@@ -117,8 +139,17 @@
               html: '<div>&#9733;</div>'  // כוכב
             });
             popupText = `נקודת מוצא:<br>${addresses[index]}`;
-          } else {
-            // סמן מספרי ליעדים
+          } 
+          else if (index === coords.length - 1) {
+            // סמן מיוחד ליעד סופי (אדום)
+            markerIcon = L.divIcon({
+              className: 'destination-marker',
+              html: `<div>${index}</div>`
+            });
+            popupText = `יעד סופי:<br>${addresses[index]}`;
+          }
+          else {
+            // סמן מספרי ליעדים ביניים
             markerIcon = L.divIcon({
               className: 'number-marker',
               html: `<div>${index}</div>`
