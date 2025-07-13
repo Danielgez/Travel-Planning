@@ -42,6 +42,32 @@
       .back-button:hover {
         background-color: #5a6268;
       }
+
+      /* סגנונות לסמנים המותאמים */
+      .start-marker div {
+        background-color: green;
+        color: white;
+        border-radius: 50%;
+        width: 28px;
+        height: 28px;
+        line-height: 28px;
+        text-align: center;
+        font-weight: bold;
+        font-size: 18px;
+        border: 2px solid white;
+      }
+      .number-marker div {
+        background-color: blue;
+        color: white;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        line-height: 24px;
+        text-align: center;
+        font-weight: bold;
+        font-size: 16px;
+        border: 2px solid white;
+      }
     </style>
 </head>
 <body>
@@ -68,22 +94,43 @@
     ></script>
     <script>
       const coords = {{ coordinates | tojson }};
-      if(coords.length === 0){
+      const addresses = {{ route_addresses | tojson }};
+
+      if (coords.length === 0) {
         alert('לא נמצאו נקודות למפה');
       } else {
         var map = L.map('map').setView(coords[0], 13);
+
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
             attribution: '© OpenStreetMap'
         }).addTo(map);
 
-        coords.forEach(function(coord, index){
-          L.marker(coord).addTo(map)
-            .bindPopup(`נקודה ${index + 1}`)
-            .openPopup();
+        coords.forEach(function(coord, index) {
+          let markerIcon;
+          let popupText;
+
+          if (index === 0) {
+            // סמן מיוחד לנקודת מוצא
+            markerIcon = L.divIcon({
+              className: 'start-marker',
+              html: '<div>&#9733;</div>'  // כוכב
+            });
+            popupText = `נקודת מוצא:<br>${addresses[index]}`;
+          } else {
+            // סמן מספרי ליעדים
+            markerIcon = L.divIcon({
+              className: 'number-marker',
+              html: `<div>${index}</div>`
+            });
+            popupText = `תחנה ${index}:<br>${addresses[index]}`;
+          }
+
+          L.marker(coord, { icon: markerIcon }).addTo(map)
+            .bindPopup(popupText);
         });
 
-        var polyline = L.polyline(coords, {color: 'blue'}).addTo(map);
+        var polyline = L.polyline(coords, { color: 'blue' }).addTo(map);
         map.fitBounds(polyline.getBounds());
       }
     </script>
