@@ -155,7 +155,10 @@ def select_school():
         return "לא נמצאה עמודת בית ספר בגליון."
 
     schools = df[school_col].dropna().unique().tolist()
-    return render_template('route.html', route_addresses=route_addresses, coordinates=route_coords)
+
+    # מחזיר תבנית להמשך בחירת בית ספר
+    return render_template('select_school.html', filename=filename, sheet_name=selected_sheet, schools=schools)
+
 
 
 @app.route('/input_start', methods=['POST'])
