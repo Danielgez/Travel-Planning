@@ -31,6 +31,45 @@ def geocode_address(address):
         print(f"Error: {response.status_code} - {response.text}")
     return None, None
 
+def haversine_distance(coord1, coord2):
+    # מחשב מרחק בין שתי נקודות גאוגרפיות בקילומטרים
+    lat1, lon1 = coord1
+    lat2, lon2 = coord2
+    R = 6371  # רדיוס כדור הארץ בק"מ
+    phi1 = math.radians(lat1)
+    phi2 = math.radians(lat2)
+    d_phi = math.radians(lat2 - lat1)
+    d_lambda = math.radians(lon2 - lon1)
+
+    a = math.sin(d_phi / 2) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(d_lambda / 2) ** 2
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+    return R * c
+
+
+def solve_tsp_nearest_neighbor(coords):
+    n = len(coords)
+    if n == 0:
+        return []
+
+    visited = [False] * n
+    order = [0]  # מתחילים בנקודה הראשונה (כתובת ההתחלה)
+    visited[0] = True
+
+    for _ in range(n - 1):
+        last = order[-1]
+        next_idx = None
+        min_dist = float('inf')
+        for i in range(n):
+            if not visited[i]:
+                dist = haversine_distance(coords[last], coords[i])
+                if dist < min_dist:
+                    min_dist = dist
+                    next_idx = i
+        order.append(next_idx)
+        visited[next_idx] = True
+
+    return order
+
 @app.route('/show_route', methods=['POST'])
 def show_route():
     selected_school = request.form.get('selected_school')
@@ -56,8 +95,9 @@ def show_route():
         df = add_default_city_to_addresses(df, address_col, school_col, selected_school)
 
         # קבלת רשימת כתובות וקואורדינטות
-        route_addresses, route_coords = build_route_tsp(
-            df, address_col, school_col, selected_school, start_address
+        route_addresses, route_coords, distance_matrix = build_route_tsp(
+        df, address_col, school_col, selected_school, start_address
+        )
         )
 
         return render_template(
@@ -111,10 +151,12 @@ def build_route_tsp(df, address_col, school_col, selected_school, start_address)
             raise ValueError(f"לא ניתן למצוא את הכתובת: {addr}")
         route_coords.append([lat, lon])
 
-    # בונים טקסט פשוט להצגה (לדוגמה)
-    route_text = " -> ".join(route_addresses)
+    # פותרים את ה-TSP (ממיין את הכתובות לפי סדר אופטימלי)
+    order = solve_tsp_nearest_neighbor(route_coords)
+    sorted_addresses = [route_addresses[i] for i in order]
+    sorted_coords = [route_coords[i] for i in order]
 
-    return route_addresses, route_coords
+    return sorted_addresses, sorted_coords
 
 
 @app.route('/', methods=['GET', 'POST'])
