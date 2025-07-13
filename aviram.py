@@ -105,7 +105,7 @@ def build_route_tsp(df, address_col, school_col, selected_school, start_address)
     # בונים טקסט פשוט להצגה (לדוגמה)
     route_text = " -> ".join(route_addresses)
 
-    return route_text, route_coords
+return route_addresses, route_coords
 
 
 @app.route('/', methods=['GET', 'POST'])
