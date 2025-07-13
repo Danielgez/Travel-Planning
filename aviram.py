@@ -132,27 +132,33 @@ def add_default_city_to_addresses(df, address_col, school_col, selected_school):
 
 
 def build_route_tsp(df, address_col, school_col, selected_school, start_address):
+    # בוחרים את השורות של בית הספר שנבחר
     school_rows = df[df[school_col] == selected_school]
-    addresses = school_rows[address_col].dropna().tolist()
 
-    # מוסיפים את כתובת ההתחלה בראש הרשימה
-    route_addresses = [start_address] + addresses
+    # יוצרים רשימת כתובות בלי לכלול את כתובת ההתחלה (כדי למנוע כפילויות)
+    addresses = [addr for addr in school_rows[address_col].dropna().tolist() if addr != start_address]
 
-    # ממירים כל כתובת לקואורדינטות
-    route_coords = []
-    for addr in route_addresses:
+    # ממירים את כתובת ההתחלה לקואורדינטות
+    start_latlon = geocode_address(start_address)
+    if start_latlon == (None, None):
+        raise ValueError(f"לא ניתן למצוא את כתובת ההתחלה: {start_address}")
+
+    # ממירים את שאר הכתובות לקואורדינטות
+    route_coords = [start_latlon]
+    for addr in addresses:
         lat, lon = geocode_address(addr)
         if lat is None or lon is None:
             raise ValueError(f"לא ניתן למצוא את הכתובת: {addr}")
-        route_coords.append([lat, lon])
+        route_coords.append((lat, lon))
 
-    # פותרים את ה-TSP (ממיין את הכתובות לפי סדר אופטימלי)
+    # פותרים את ה-TSP (סדר לפי נקודת התחלה)
     order = solve_tsp_nearest_neighbor(route_coords)
-    sorted_addresses = [route_addresses[i] for i in order]
+
+    # מסדרים את הכתובות והקואורדינטות לפי הסדר שהאלגוריתם חזר
+    sorted_addresses = [start_address] + [addresses[i - 1] for i in order if i != 0]
     sorted_coords = [route_coords[i] for i in order]
 
     return sorted_addresses, sorted_coords
-
 
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
