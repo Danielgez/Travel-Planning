@@ -98,7 +98,7 @@ def show_route():
         route_addresses, route_coords, distance_matrix = build_route_tsp(
         df, address_col, school_col, selected_school, start_address
         )
-        )
+    
 
         return render_template(
             'route.html',
