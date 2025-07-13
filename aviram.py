@@ -149,7 +149,10 @@ def add_default_city_to_addresses(df, address_col, school_col, selected_school):
 
 def build_route_tsp(df, address_col, school_col, selected_school, start_address, destination_address=None):
     school_rows = df[df[school_col] == selected_school]
-    addresses = [addr for addr in school_rows[address_col].dropna().tolist() if addr != start_address]
+
+    # כל הכתובות, לא כולל התחלה ויעד
+    all_addresses = [addr for addr in school_rows[address_col].dropna().tolist()
+                     if addr != start_address and addr != destination_address]
 
     start_latlon = geocode_address(start_address)
     if start_latlon == (None, None):
@@ -157,25 +160,32 @@ def build_route_tsp(df, address_col, school_col, selected_school, start_address,
 
     route_coords = [start_latlon]
 
-    for addr in addresses:
+    # ממיר כל כתובת לתאום
+    intermediate_coords = []
+    for addr in all_addresses:
         lat, lon = geocode_address(addr)
         if lat is None or lon is None:
             raise ValueError(f"לא ניתן למצוא את הכתובת: {addr}")
-        route_coords.append((lat, lon))
+        intermediate_coords.append((lat, lon))
 
-    # אם יש כתובת יעד, להוסיף אותה לסוף המסלול
+    # רץ TSP רק על תחנות הביניים
+    order = solve_tsp_nearest_neighbor(intermediate_coords)
+
+    # סדר חדש לפי TSP של התחנות
+    ordered_addresses = [all_addresses[i] for i in order]
+    ordered_coords = [intermediate_coords[i] for i in order]
+
+    # מוסיף את נקודת ההתחלה בתחילת המסלול
+    sorted_addresses = [start_address] + ordered_addresses
+    sorted_coords = [start_latlon] + ordered_coords
+
+    # מוסיף את נקודת היעד בסוף (אם יש)
     if destination_address:
         dest_latlon = geocode_address(destination_address)
         if dest_latlon == (None, None):
             raise ValueError(f"לא ניתן למצוא את כתובת היעד: {destination_address}")
-        route_coords.append(dest_latlon)
-        addresses.append(destination_address)
-
-    order = solve_tsp_nearest_neighbor(route_coords)
-
-    # מכיוון שהנקודה הראשונה היא נקודת ההתחלה
-    sorted_addresses = [start_address] + [addresses[i - 1] for i in order if i != 0]
-    sorted_coords = [route_coords[i] for i in order]
+        sorted_addresses.append(destination_address)
+        sorted_coords.append(dest_latlon)
 
     return sorted_addresses, sorted_coords
 
