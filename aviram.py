@@ -55,10 +55,19 @@ def show_route():
         # הוספת עיר ברירת מחדל לכתובות חסרות עיר מתוך כתובת בית הספר שנבחר
         df = add_default_city_to_addresses(df, address_col, school_col, selected_school)
 
-        route_text, route_coords = build_route_tsp(df, address_col, school_col, selected_school, start_address)
-        return render_template('route.html', route_text=route_text, coordinates=route_coords)
+        # קבלת רשימת כתובות וקואורדינטות
+        route_addresses, route_coords = build_route_tsp(
+            df, address_col, school_col, selected_school, start_address
+        )
+
+        return render_template(
+            'route.html',
+            route_addresses=route_addresses,
+            coordinates=route_coords
+        )
     except Exception as e:
         return f"שגיאה בעת עיבוד הנתונים: {e}"
+
 
 
 def add_default_city_to_addresses(df, address_col, school_col, selected_school):
