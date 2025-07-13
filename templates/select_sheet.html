@@ -27,7 +27,10 @@
     </style>
 </head>
 <body dir="rtl" class="bg-light">
-<div class="container mt-5">
+<div class="container mt-5 pt-5 position-relative">
+    <!-- כפתור חזור -->
+    <button class="back-button" onclick="window.history.back()">חזור</button>
+
     <h2 class="mb-4 text-center">בחר גליון עבודה</h2>
     <form method="post" action="{{ url_for('select_school') }}" class="border p-4 bg-white rounded shadow-sm">
         <input type="hidden" name="filename" value="{{ filename }}">
