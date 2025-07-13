@@ -1,93 +1,6 @@
-<!DOCTYPE html>
-<html lang="he">
-<head>
-    <meta charset="UTF-8" />
-    <title>מסלול</title>
-    <link
-      rel="stylesheet"
-      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-      integrity="sha256-sA+4jX5SjGqV3t9pSHNQW/Nh1Q1b5f9c1r3Vx5ZjvZI="
-      crossorigin=""
-    />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        direction: rtl;
-        margin: 20px;
-        background: #f9f9f9;
-        color: #333;
-        position: relative;
-      }
-      #map {
-        height: 450px;
-        width: 100%;
-        border-radius: 10px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-        margin-top: 20px;
-      }
-      .back-button {
-        position: absolute;
-        top: 20px;
-        right: 20px;
-        background-color: #6c757d;
-        color: white;
-        border: none;
-        padding: 8px 14px;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 1em;
-        text-decoration: none;
-      }
-      .back-button:hover {
-        background-color: #5a6268;
-      }
-
-      /* סגנונות לסמנים המותאמים */
-      .start-marker div {
-        background-color: green;
-        color: white;
-        border-radius: 50%;
-        width: 28px;
-        height: 28px;
-        line-height: 28px;
-        text-align: center;
-        font-weight: bold;
-        font-size: 18px;
-        border: 2px solid white;
-      }
-      .number-marker div {
-        background-color: blue;
-        color: white;
-        border-radius: 50%;
-        width: 24px;
-        height: 24px;
-        line-height: 24px;
-        text-align: center;
-        font-weight: bold;
-        font-size: 16px;
-        border: 2px solid white;
-      }
-      .destination-marker div {
-        background-color: red !important;
-        color: white;
-        border-radius: 50%;
-        width: 24px;
-        height: 24px;
-        line-height: 24px;
-        text-align: center;
-        font-weight: bold;
-        font-size: 16px;
-        border: 2px solid white;
-      }
-      .list-group-item.destination {
-        background-color: #f8d7da;
-        color: #721c24;
-        font-weight: 700;
-      }
-    </style>
-</head>
 <body>
+  <div class="container mt-5 position-relative pt-5">
+    <!-- כפתור חזור -->
     <button class="back-button" onclick="window.history.back()">חזור</button>
 
     <h2 class="mb-3">מסלול הגעה</h2>
@@ -108,62 +21,58 @@
     </ol>
 
     <div id="map"></div>
+  </div>
 
-    <script
-      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-      integrity="sha256-o9N1j7f48iWjOGeNp+2DpP7ZTlj6ASn7PkpGz0hF0xo="
-      crossorigin=""
-    ></script>
-    <script>
-      const coords = {{ coordinates | tojson }};
-      const addresses = {{ route_addresses | tojson }};
+  <!-- שאר הסקריפטים שלך נשארים זהים -->
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-o9N1j7f48iWjOGeNp+2DpP7ZTlj6ASn7PkpGz0hF0xo="
+    crossorigin=""
+  ></script>
+  <script>
+    const coords = {{ coordinates | tojson }};
+    const addresses = {{ route_addresses | tojson }};
 
-      if (coords.length === 0) {
-        alert('לא נמצאו נקודות למפה');
-      } else {
-        var map = L.map('map').setView(coords[0], 13);
+    if (coords.length === 0) {
+      alert('לא נמצאו נקודות למפה');
+    } else {
+      var map = L.map('map').setView(coords[0], 13);
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '© OpenStreetMap'
-        }).addTo(map);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 19,
+          attribution: '© OpenStreetMap'
+      }).addTo(map);
 
-        coords.forEach(function(coord, index) {
-          let markerIcon;
-          let popupText;
+      coords.forEach(function(coord, index) {
+        let markerIcon;
+        let popupText;
 
-          if (index === 0) {
-            // סמן מיוחד לנקודת מוצא
-            markerIcon = L.divIcon({
-              className: 'start-marker',
-              html: '<div>&#9733;</div>'  // כוכב
-            });
-            popupText = `נקודת מוצא:<br>${addresses[index]}`;
-          } 
-          else if (index === coords.length - 1) {
-            // סמן מיוחד ליעד סופי (אדום)
-            markerIcon = L.divIcon({
-              className: 'destination-marker',
-              html: `<div>${index}</div>`
-            });
-            popupText = `יעד סופי:<br>${addresses[index]}`;
-          }
-          else {
-            // סמן מספרי ליעדים ביניים
-            markerIcon = L.divIcon({
-              className: 'number-marker',
-              html: `<div>${index}</div>`
-            });
-            popupText = `תחנה ${index}:<br>${addresses[index]}`;
-          }
+        if (index === 0) {
+          markerIcon = L.divIcon({
+            className: 'start-marker',
+            html: '<div>&#9733;</div>'
+          });
+          popupText = `נקודת מוצא:<br>${addresses[index]}`;
+        } else if (index === coords.length - 1) {
+          markerIcon = L.divIcon({
+            className: 'destination-marker',
+            html: `<div>${index}</div>`
+          });
+          popupText = `יעד סופי:<br>${addresses[index]}`;
+        } else {
+          markerIcon = L.divIcon({
+            className: 'number-marker',
+            html: `<div>${index}</div>`
+          });
+          popupText = `תחנה ${index}:<br>${addresses[index]}`;
+        }
 
-          L.marker(coord, { icon: markerIcon }).addTo(map)
-            .bindPopup(popupText);
-        });
+        L.marker(coord, { icon: markerIcon }).addTo(map)
+          .bindPopup(popupText);
+      });
 
-        var polyline = L.polyline(coords, { color: 'blue' }).addTo(map);
-        map.fitBounds(polyline.getBounds());
-      }
-    </script>
+      var polyline = L.polyline(coords, { color: 'blue' }).addTo(map);
+      map.fitBounds(polyline.getBounds());
+    }
+  </script>
 </body>
-</html>
