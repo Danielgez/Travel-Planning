@@ -211,13 +211,8 @@ def select_school():
     filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     df = pd.read_excel(filepath, sheet_name=selected_sheet)
 
-    # ניקוי עמודות
-    df.columns = [str(col).strip().replace('\u200f', '').replace('\u202c', '') for col in df.columns]
-    print("שמות העמודות בקובץ:", df.columns.tolist())  # debug
-
     school_col = None
     for col in df.columns:
-        col_lower = str(col).strip().replace('\u200f', '').replace('\u202c', '').lower()
         col_lower = col.lower()
         if any(keyword in col_lower for keyword in ['בית ספר',' מוסד חינוך','מוסד חינוך ','מוסד חינוך', 'מוסד', 'school']):
             school_col = col
