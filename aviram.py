@@ -148,7 +148,7 @@ def add_default_city_to_addresses(df, address_col, school_col, selected_school):
 
 
 def build_route_tsp(df, address_col, school_col, selected_school, start_address, destination_address=None):
-school_rows = df[df[school_col].astype(str).str.contains(selected_school, case=False, na=False)]
+    school_rows = df[df[school_col].astype(str).str.contains(selected_school, case=False, na=False)]
     
     # כל הכתובות במסלול, למעט המוצא והיעד
     all_addresses = [addr for addr in school_rows[address_col].dropna().tolist()
