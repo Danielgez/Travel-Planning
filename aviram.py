@@ -217,8 +217,9 @@ def select_school():
 
     school_col = None
     for col in df.columns:
-        col_lower = str(col).strip().lower()
-        if any(keyword in col_lower for keyword in ['בית ספר', 'מוסד חינוך', 'מוסד', 'school']):
+        col_lower = str(col).strip().replace('\u200f', '').replace('\u202c', '').lower()
+        col_lower = col.lower()
+        if any(keyword in col_lower for keyword in ['בית ספר', 'מוסד חינוך','מוסד חינוך', 'מוסד', 'school']):
             school_col = col
             break
 
