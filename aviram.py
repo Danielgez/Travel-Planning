@@ -86,10 +86,10 @@ def show_route():
         address_col = None
         school_col = None
         for col in df.columns:
-            col_lower = str(col).lower()
+            col_lower = str(col).strip().lower()
             if 'כתובת' in col_lower or 'address' in col_lower:
                 address_col = col
-            if 'בית ספר' in col_lower or 'מוסד חינוך' in col_lower or 'school' in col_lower:
+            if any(keyword in col_lower for keyword in ['בית ספר', 'מוסד חינוך', 'מוסד', 'school']):
                 school_col = col
         if not address_col or not school_col:
             raise ValueError("לא נמצאה עמודת כתובת או בית ספר בגליון.")
@@ -211,10 +211,10 @@ def select_school():
     filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     df = pd.read_excel(filepath, sheet_name=selected_sheet)
 
-    school_col = None
+   school_col = None
     for col in df.columns:
-        col_lower = str(col).lower()
-        if 'בית ספר' in col_lower or 'מוסד חינוך' in col_lower or 'school' in col_lower:
+        col_lower = str(col).strip().lower()
+        if any(keyword in col_lower for keyword in ['בית ספר', 'מוסד חינוך', 'מוסד', 'school']):
             school_col = col
             break
     if not school_col:
