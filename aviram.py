@@ -213,6 +213,7 @@ def select_school():
 
     # ניקוי עמודות
     df.columns = [str(col).strip().replace('\u200f', '').replace('\u202c', '') for col in df.columns]
+    print("שמות העמודות בקובץ:", df.columns.tolist())  # debug
 
     school_col = None
     for col in df.columns:
