@@ -211,6 +211,9 @@ def select_school():
     filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     df = pd.read_excel(filepath, sheet_name=selected_sheet)
 
+      # הסרת רווחים מכל שמות העמודות
+    df.columns = [str(col).strip() for col in df.columns]
+
     school_col = None
     for col in df.columns:
         col_lower = str(col).strip().lower()
