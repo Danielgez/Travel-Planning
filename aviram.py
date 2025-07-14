@@ -125,11 +125,11 @@ def input_destination():
 
 
 def add_default_city_to_addresses(df, address_col, school_col, selected_school):
-    school_rows = df[df[school_col].astype(str).str.strip() == selected_school.strip()]
-    
+    school_rows = df[df[school_col].astype(str).str.contains(selected_school.strip(), case=False, na=False)]
+
     if school_rows.empty:
         raise ValueError(f"לא נמצאה כתובת עבור המוסד: {selected_school}")
-    
+
     school_address = str(school_rows.iloc[0][address_col])
     default_city = school_address.split(',')[-1].strip()
 
