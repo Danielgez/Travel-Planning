@@ -211,7 +211,7 @@ def select_school():
     filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     df = pd.read_excel(filepath, sheet_name=selected_sheet)
 
-   school_col = None
+    school_col = None
     for col in df.columns:
         col_lower = str(col).strip().lower()
         if any(keyword in col_lower for keyword in ['בית ספר', 'מוסד חינוך', 'מוסד', 'school']):
