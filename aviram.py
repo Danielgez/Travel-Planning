@@ -211,8 +211,9 @@ def select_school():
     filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     df = pd.read_excel(filepath, sheet_name=selected_sheet)
 
-      # הסרת רווחים מכל שמות העמודות
-    df.columns = [str(col).strip() for col in df.columns]
+    # ניקוי עמודות
+    df.columns = [str(col).strip().replace('\u200f', '').replace('\u202c', '') for col in df.columns]
+    print("שמות העמודות בקובץ:", df.columns.tolist())  # debug
 
     school_col = None
     for col in df.columns:
@@ -220,15 +221,18 @@ def select_school():
         if any(keyword in col_lower for keyword in ['בית ספר', 'מוסד חינוך', 'מוסד', 'school']):
             school_col = col
             break
+
     if not school_col:
         return "לא נמצאה עמודת בית ספר בגליון."
 
+    df[school_col] = df[school_col].astype(str).str.strip()
     schools = df[school_col].dropna().unique().tolist()
 
     return render_template('select_school.html',
                            filename=filename,
                            sheet_name=selected_sheet,
                            schools=schools)
+
 
 
 @app.route('/input_start', methods=['POST'])
