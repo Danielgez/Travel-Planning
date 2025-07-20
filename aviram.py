@@ -125,12 +125,11 @@ def input_destination():
 
 
 def add_default_city_to_addresses(df, address_col, school_col, selected_school):
-    school_rows = df[df[school_col].astype(str).str.contains(selected_school.strip(), case=False, na=False)]
-
-    if school_rows.empty:
-        raise ValueError(f"לא נמצאה כתובת עבור המוסד: {selected_school}")
-
-    school_address = str(school_rows.iloc[0][address_col])
+    """
+    מוסיף עיר ברירת מחדל לכתובות חסרות עיר מתוך כתובת בית הספר שנבחר.
+    """
+    school_row = df[df[school_col] == selected_school].iloc[0]
+    school_address = str(school_row[address_col])
     default_city = school_address.split(',')[-1].strip()
 
     def ensure_city_in_address(address):
@@ -145,7 +144,6 @@ def add_default_city_to_addresses(df, address_col, school_col, selected_school):
 
     df[address_col] = df[address_col].apply(ensure_city_in_address)
     return df
-
 
 
 
@@ -213,10 +211,14 @@ def select_school():
     filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     df = pd.read_excel(filepath, sheet_name=selected_sheet)
 
+    # ניקוי עמודות
+    df.columns = [str(col).strip().replace('\u200f', '').replace('\u202c', '') for col in df.columns]
+    print("שמות העמודות בקובץ:", df.columns.tolist())  # debug
+
     school_col = None
     for col in df.columns:
-        col_lower = col.lower()
-        if any(keyword in col_lower for keyword in ['בית ספר',' מוסד חינוך','מוסד חינוך ','מוסד חינוך', 'מוסד', 'school']):
+        col_lower = str(col).strip().lower()
+        if any(keyword in col_lower for keyword in ['בית ספר', 'מוסד חינוך', 'מוסד', 'school']):
             school_col = col
             break
 
