@@ -1,3 +1,4 @@
+
 from flask import Flask, render_template, request, redirect, url_for
 import os
 import pandas as pd
@@ -86,10 +87,10 @@ def show_route():
         address_col = None
         school_col = None
         for col in df.columns:
-            col_lower = str(col).strip().lower()
+            col_lower = str(col).lower()
             if 'כתובת' in col_lower or 'address' in col_lower:
                 address_col = col
-            if any(keyword in col_lower for keyword in ['בית ספר', 'מוסד חינוך', 'מוסד', 'school']):
+            if 'בית ספר' in col_lower or 'מוסד חינוך' in col_lower or 'school' in col_lower:
                 school_col = col
         if not address_col or not school_col:
             raise ValueError("לא נמצאה עמודת כתובת או בית ספר בגליון.")
@@ -148,7 +149,7 @@ def add_default_city_to_addresses(df, address_col, school_col, selected_school):
 
 
 def build_route_tsp(df, address_col, school_col, selected_school, start_address, destination_address=None):
-    school_rows = df[df[school_col].astype(str).str.contains(selected_school, case=False, na=False)]
+    school_rows = df[df[school_col] == selected_school]
     
     # כל הכתובות במסלול, למעט המוצא והיעד
     all_addresses = [addr for addr in school_rows[address_col].dropna().tolist()
@@ -211,28 +212,21 @@ def select_school():
     filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     df = pd.read_excel(filepath, sheet_name=selected_sheet)
 
-    # ניקוי עמודות
-    df.columns = [str(col).strip().replace('\u200f', '').replace('\u202c', '') for col in df.columns]
-    print("שמות העמודות בקובץ:", df.columns.tolist())  # debug
-
     school_col = None
     for col in df.columns:
-        col_lower = str(col).strip().lower()
-        if any(keyword in col_lower for keyword in ['בית ספר', 'מוסד חינוך', 'מוסד', 'school']):
+        col_lower = str(col).lower()
+        if 'בית ספר' in col_lower or 'מוסד חינוך' in col_lower or 'school' in col_lower:
             school_col = col
             break
-
     if not school_col:
         return "לא נמצאה עמודת בית ספר בגליון."
 
-    df[school_col] = df[school_col].astype(str).str.strip()
     schools = df[school_col].dropna().unique().tolist()
 
     return render_template('select_school.html',
                            filename=filename,
                            sheet_name=selected_sheet,
                            schools=schools)
-
 
 
 @app.route('/input_start', methods=['POST'])
