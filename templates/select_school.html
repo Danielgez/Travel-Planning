@@ -2,15 +2,14 @@
 <html lang="he">
 <head>
     <meta charset="UTF-8">
-    <title>בחר מוסד חינוך</title>
+    <title>בחר מוסדות חינוך</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-      /* סגנון לכפתור החזור */
       .back-button {
         position: absolute;
         top: 20px;
         right: 20px;
-        background-color: #6c757d; /* אפור bootstrap secondary */
+        background-color: #6c757d;
         color: white;
         border: none;
         padding: 8px 14px;
@@ -22,7 +21,6 @@
       .back-button:hover {
         background-color: #5a6268;
       }
-      /* חשוב ש-container יקבל position: relative בשביל כפתור מיקום אבסולוטי בתוכו */
       .container {
         position: relative;
       }
@@ -31,18 +29,21 @@
 <body dir="rtl" class="bg-light">
 <div class="container mt-5">
     <button class="back-button" onclick="window.history.back()">חזור</button>
-    <h2 class="mb-4 text-center">בחר מוסד חינוך</h2>
+    <h2 class="mb-4 text-center">בחר מוסדות חינוך</h2>
     <form method="post" action="{{ url_for('input_start') }}" class="border p-4 bg-white rounded shadow-sm">
         <input type="hidden" name="filename" value="{{ filename }}">
         <input type="hidden" name="sheet_name" value="{{ sheet_name }}">
+
         <div class="mb-3">
-            <select name="school_name" class="form-select" required>
+            <label for="school_names" class="form-label">בחר מוסדות (ניתן לבחור כמה עם Ctrl/Command):</label>
+            <select name="school_names" id="school_names" class="form-select" multiple required>
                 {% for school in schools %}
                     <option value="{{ school }}">{{ school }}</option>
                 {% endfor %}
             </select>
         </div>
-        <button type="submit" class="btn btn-primary w-100">בחר מוסד</button>
+
+        <button type="submit" class="btn btn-primary w-100">המשך להזנת כתובת התחלה</button>
     </form>
 </div>
 </body>
