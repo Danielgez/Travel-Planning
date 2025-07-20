@@ -117,11 +117,31 @@ def input_destination():
     selected_school = request.form.get('selected_school')
     start_address = request.form.get('start_address')
 
+    filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    df = pd.read_excel(filepath, sheet_name=sheet_name)
+
+    # שליפת עמודת כתובות
+    address_col = None
+    school_col = None
+    for col in df.columns:
+        col_lower = str(col).lower()
+        if 'כתובת' in col_lower or 'address' in col_lower:
+            address_col = col
+        if 'בית ספר' in col_lower or 'מוסד חינוך' in col_lower or 'school' in col_lower:
+            school_col = col
+    if not address_col or not school_col:
+        return "לא נמצאה עמודת כתובת או בית ספר בגליון."
+
+    df = add_default_city_to_addresses(df, address_col, school_col, selected_school)
+    available_addresses = df[df[school_col] == selected_school][address_col].dropna().unique().tolist()
+
     return render_template('input_destination.html',
                            filename=filename,
                            sheet_name=sheet_name,
                            selected_school=selected_school,
-                           start_address=start_address)
+                           start_address=start_address,
+                           available_addresses=available_addresses)
+
 
 
 
@@ -228,17 +248,35 @@ def select_school():
                            sheet_name=selected_sheet,
                            schools=schools)
 
-
 @app.route('/input_start', methods=['POST'])
 def input_start():
     selected_school = request.form.get('school_name')
     selected_sheet = request.form.get('sheet_name')
     filename = request.form.get('filename')
 
+    filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    df = pd.read_excel(filepath, sheet_name=selected_sheet)
+
+    address_col = None
+    school_col = None
+    for col in df.columns:
+        col_lower = str(col).lower()
+        if 'כתובת' in col_lower or 'address' in col_lower:
+            address_col = col
+        if 'בית ספר' in col_lower or 'מוסד חינוך' in col_lower or 'school' in col_lower:
+            school_col = col
+    if not address_col or not school_col:
+        return "לא נמצאה עמודת כתובת או בית ספר בגליון."
+
+    df = add_default_city_to_addresses(df, address_col, school_col, selected_school)
+    available_addresses = df[df[school_col] == selected_school][address_col].dropna().unique().tolist()
+
     return render_template('input_start.html',
                            filename=filename,
                            sheet_name=selected_sheet,
-                           selected_school=selected_school)
+                           selected_school=selected_school,
+                           available_addresses=available_addresses)
+
 
 
 
