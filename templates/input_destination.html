@@ -19,9 +19,16 @@
         <input type="hidden" name="sheet_name" value="{{ sheet_name }}">
         <input type="hidden" name="selected_school" value="{{ selected_school }}">
         <input type="hidden" name="start_address" value="{{ start_address }}">
+
         <div class="mb-3">
-            <input type="text" name="destination_address" class="form-control" placeholder="הזן כתובת יעד" required>
+            <input list="address-options" name="destination_address" class="form-control" placeholder="הזן כתובת יעד" required>
+            <datalist id="address-options">
+                {% for address in available_addresses %}
+                    <option value="{{ address }}">
+                {% endfor %}
+            </datalist>
         </div>
+
         <button type="submit" class="btn btn-primary w-100">הצג מסלול</button>
     </form>
 </div>
