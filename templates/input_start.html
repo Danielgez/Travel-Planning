@@ -18,9 +18,16 @@
         <input type="hidden" name="filename" value="{{ filename }}">
         <input type="hidden" name="sheet_name" value="{{ sheet_name }}">
         <input type="hidden" name="selected_school" value="{{ selected_school }}">
+
         <div class="mb-3">
-            <input type="text" name="start_address" class="form-control" placeholder="הזן כתובת התחלה" required>
+            <input list="address-options" name="start_address" class="form-control" placeholder="הזן כתובת התחלה" required>
+            <datalist id="address-options">
+                {% for address in available_addresses %}
+                    <option value="{{ address }}">
+                {% endfor %}
+            </datalist>
         </div>
+
         <button type="submit" class="btn btn-primary w-100">המשך להזנת כתובת יעד</button>
     </form>
 </div>
